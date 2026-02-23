@@ -1,65 +1,126 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+// register only on client side
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export default function Home() {
+
+  // refs used for different elements
+  const mainRef = useRef(null);
+  const heroSection = useRef(null);
+  const titleRef = useRef(null);
+  const stats = useRef([]);
+  const car = useRef(null);
+  const contentBox = useRef(null);
+
+  useEffect(() => {
+
+    
+    let tl = gsap.timeline(); // page load animation
+    tl.from(titleRef.current, {
+      y: 60,
+      opacity: 0,
+      duration: 0.9,
+      ease: "power2.out",
+    });
+    tl.from(stats.current, {  // one by one will start 
+      y: 25, 
+      opacity: 0,
+      stagger: 0.2,
+      duration: 0.7,
+    }, "-=0.4");
+
+   let scrollAnim = gsap.timeline({ // scroling animation 
+      scrollTrigger: {
+        trigger: heroSection.current,
+        start: "top top",
+        end: "+=200%",   //  distance
+        scrub: 1,       
+        pin: true,       
+      }
+    });
+
+    scrollAnim.fromTo( // car will move from left to right when we scroll
+      car.current,
+      {
+        x: "-100vw",
+        scale: 0.8
+      },
+      {
+        x: "100vw",
+        scale: 1.5,
+        ease: "none",
+        duration: 2
+      }
+    );
+
+    scrollAnim.to(contentBox.current, { // bluring text when car overlap
+      opacity: 0,
+      filter: "blur(12px)",
+      scale: 0.9,
+      duration: 0.3
+    }, 0.8);
+    
+    scrollAnim.to(contentBox.current, {
+      opacity: 1,
+      filter: "blur(0px)",
+      scale: 1,
+      duration: 0.3
+    }, 1.2);
+    
+    return () => {
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+    };
+
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main ref={mainRef} className="bg-black text-white min-h-[300vh]">
+       <section ref={heroSection}
+        className="h-screen flex items-center justify-center relative overflow-hidden">
+          <div className="absolute w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full"></div>
+          <div ref={contentBox} className="z-10 text-center px-4">
+
+          <h1 ref={titleRef}
+            className="text-5xl md:text-7xl font-bold tracking-[0.4em] uppercase">
+            W E L C O M E <br /> I T Z F I Z Z</h1>
+            <div className="flex gap-6 md:gap-12 mt-10 justify-center flex-wrap">
+              {[
+              { label: "Success", value: "95%" },
+              { label: "Projects", value: "120+" },
+              { label: "Clients", value: "50+" },
+            ].map((item, i) => (<div
+                key={i}
+                ref={(el) => (stats.current[i] = el)}
+                className="text-center">
+                <h2 className="text-xl md:text-3xl font-semibold text-blue-400">
+                  {item.value}</h2>
+                <p className="text-xs text-gray-500 tracking-widest uppercase">
+                  {item.label}</p>
+              </div>
+            ))}
+            </div>
+            </div>
+             {/* car */}
+        <div
+          ref={car}
+          className="absolute z-40"
+          style={{ top: "50%", transform: "translateY(-50%)" }}>
+          <img src="/car.png" alt="car"
+            className="w-72 md:w-[600px]"/>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+      </section>
+      <section className="h-screen flex items-center justify-center bg-zinc-950">
+        <h2 className="text-zinc-700 text-2xl tracking-widest uppercase">
+          THANK YOU FOR SCROLLING</h2>
+      </section>
+
+    </main>
   );
 }
