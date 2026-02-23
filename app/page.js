@@ -45,33 +45,34 @@ export default function Home() {
       }
     });
 
-    scrollAnim.fromTo( // car will move from left to right when we scroll
-      car.current,
-      {
-        x: "-100vw",
-        scale: 0.8
-      },
-      {
-        x: "100vw",
-        scale: 1.5,
-        ease: "none",
-        duration: 2
-      }
-    );
+    scrollAnim.fromTo(
+  car.current,
+  {
+    xPercent: -120,
+    scale: 0.8
+  },
+  {
+    xPercent: 120,
+    scale: 1.5,
+    ease: "none"
+  }
+);
 
     scrollAnim.to(contentBox.current, { // bluring text when car overlap
       opacity: 0,
       filter: "blur(12px)",
       scale: 0.9,
       duration: 0.3
-    }, 0.8);
+    }, 0.4);
     
-    scrollAnim.to(contentBox.current, {
+    scrollAnim.to(contentBox.current, {  // agian text show 
       opacity: 1,
       filter: "blur(0px)",
       scale: 1,
       duration: 0.3
-    }, 1.2);
+    }, 0.8);
+    
+    ScrollTrigger.refresh();
     
     return () => {
       ScrollTrigger.getAll().forEach((t) => t.kill());
@@ -108,9 +109,14 @@ export default function Home() {
             </div>
              {/* car */}
         <div
-          ref={car}
-          className="absolute z-40"
-          style={{ top: "50%", transform: "translateY(-50%)" }}>
+  ref={car}
+  className="absolute z-40"
+  style={{
+    top: "50%",
+    left: "0",
+    transform: "translateY(-50%)"
+  }}
+>
           <img src="/car.png" alt="car"
             className="w-72 md:w-[600px]"/>
         </div>
